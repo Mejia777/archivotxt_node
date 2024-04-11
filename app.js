@@ -1,6 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const soloLetras = /^[A-Za-z]+$/;
+const soloNumeros = /^\d+$/;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +21,16 @@ app.get('/', (req, res) => {
 // Ruta para procesar el formulario
 app.post('/prestamo', (req, res) => {
     const { id, nombre, apellido, titulo, autor, editorial, año } = req.body;
+
+    // Validar que el nombre y apellido contengan solo letras
+    if (!soloLetras.test(nombre) || !soloLetras.test(apellido)) {
+        return res.status(400).send('El nombre y apellido deben contener solo letras');
+    }
+
+    // Validar que el año contenga solo números
+    if (!soloNumeros.test(año)) {
+        return res.status(400).send('El año debe contener solo números');
+    }
 
     // Verifica que todos los campos estén presentes
     if (!id || !nombre || !apellido || !titulo || !autor || !editorial || !año) {
@@ -43,8 +55,8 @@ app.post('/prestamo', (req, res) => {
         // Envía el archivo para su descarga
         res.download(filePath, 'id_' + id + '.txt', (err) => {
             if (err) {
-              console.error(err);
-              return res.status(500).send('Error al descargar el archivo');
+                console.error(err);
+                return res.status(500).send('Error al descargar el archivo');
             }
             console.log('Archivo descargado correctamente');
         });
